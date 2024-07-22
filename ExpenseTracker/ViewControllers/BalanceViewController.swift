@@ -10,7 +10,8 @@ import UIKit
 class BalanceController: UIViewController {
     
     let mocks = ["1", "2", "3"]
-    let mockBalance = "12332.12"
+    let mockBalance = "0.2"
+    let mockBitcoinValue = "61232.32"
     
     lazy private var tableView: UITableView = {
         let tableView = UITableView()
@@ -21,11 +22,27 @@ class BalanceController: UIViewController {
         return tableView
     }()
     
-    lazy private var titleLableView: UILabel = {
+    lazy private var bitcoinValueView: UILabel = {
         let label = UILabel()
         label.translatesAutoresizingMaskIntoConstraints = false
-        label.text = "BTC: \(mockBalance)"
-        label.font = .systemFont(ofSize: 20)
+        label.text = "BitCoin = \(mockBitcoinValue)$"
+        label.font = .systemFont(ofSize: 18)
+        return label
+    }()
+    
+    lazy private var titleLabelView: UILabel = {
+        let label = UILabel()
+        label.translatesAutoresizingMaskIntoConstraints = false
+        label.text = "My Wallet"
+        label.font = .systemFont(ofSize: 20, weight: .bold)
+        return label
+    }()
+    
+    lazy private var balanceLableView: UILabel = {
+        let label = UILabel()
+        label.translatesAutoresizingMaskIntoConstraints = false
+        label.text = "Balance: \(mockBalance) BTC"
+        label.font = .systemFont(ofSize: 18)
         return label
     }()
     
@@ -69,7 +86,7 @@ class BalanceController: UIViewController {
     }()
     
     lazy private var titleStackView: UIStackView = {
-        let stackView = UIStackView(arrangedSubviews: [titleLableView, addBalanceButtonView])
+        let stackView = UIStackView(arrangedSubviews: [balanceLableView, addBalanceButtonView])
         stackView.translatesAutoresizingMaskIntoConstraints = false
         stackView.alignment = .trailing
 //        stackView.spacing = 20
@@ -84,12 +101,20 @@ class BalanceController: UIViewController {
     private func setupView() {
         view.backgroundColor = .white
         
+        view.addSubview(bitcoinValueView)
+        view.addSubview(titleLabelView)
         view.addSubview(titleStackView)
         view.addSubview(addTransactionButtonView)
         view.addSubview(tableView)
         
         NSLayoutConstraint.activate([
-            titleStackView.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: -24),
+            bitcoinValueView.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: -24),
+            bitcoinValueView.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -20),
+            
+            titleLabelView.topAnchor.constraint(equalTo: bitcoinValueView.topAnchor, constant: 20),
+            titleLabelView.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 20),
+            
+            titleStackView.topAnchor.constraint(equalTo: titleLabelView.topAnchor, constant: 20),
             titleStackView.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 20),
             titleStackView.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -20),
             titleStackView.heightAnchor.constraint(equalToConstant: 40),

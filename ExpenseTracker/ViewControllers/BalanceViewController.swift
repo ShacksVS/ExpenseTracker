@@ -11,8 +11,13 @@ class BalanceController: UIViewController {
     
     let mocks = ["1", "2", "3"]
     let mockBalance = "0.2"
-    let mockBitcoinValue = "61232.32"
-    
+    var mockBitcoinValue: String = "0.0" {
+        didSet {
+            DispatchQueue.main.async {
+                self.bitcoinValueView.text = "BTC = \(self.mockBitcoinValue)$"
+            }
+        }
+    }
     lazy private var tableView: UITableView = {
         let tableView = UITableView()
         tableView.translatesAutoresizingMaskIntoConstraints = false
@@ -25,7 +30,7 @@ class BalanceController: UIViewController {
     lazy private var bitcoinValueView: UILabel = {
         let label = UILabel()
         label.translatesAutoresizingMaskIntoConstraints = false
-        label.text = "BitCoin = \(mockBitcoinValue)$"
+        label.text = "Loading BTC rate.."
         label.font = .systemFont(ofSize: 18)
         return label
     }()
@@ -86,7 +91,12 @@ class BalanceController: UIViewController {
     }()
     
     lazy private var titleStackView: UIStackView = {
-        let stackView = UIStackView(arrangedSubviews: [balanceLableView, addBalanceButtonView])
+        let stackView = UIStackView(
+            arrangedSubviews: [
+                balanceLableView,
+                addBalanceButtonView
+            ]
+        )
         stackView.translatesAutoresizingMaskIntoConstraints = false
         stackView.alignment = .trailing
 //        stackView.spacing = 20
@@ -96,10 +106,28 @@ class BalanceController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         setupView()
+        fetchBitcoinRate()
+        
+        // Register for an observer
+        NotificationCenter.default.addObserver(
+            self,
+            selector: #selector(updateBitcoinRate),
+            name: UIApplication.willEnterForegroundNotification,
+            object: nil
+        )
+    }
+    
+    // Remove observer
+    deinit {
+        NotificationCenter.default.removeObserver(
+            self,
+            name: UIApplication.willEnterForegroundNotification,
+            object: nil
+        )
     }
     
     private func setupView() {
-        view.backgroundColor = .white
+        view.backgroundColor = UIColor.systemBackground
         
         view.addSubview(bitcoinValueView)
         view.addSubview(titleLabelView)
@@ -131,14 +159,42 @@ class BalanceController: UIViewController {
         ])
     }
     
+    private func fetchBitcoinRate() {
+        Task {
+            do {
+                let rate = try await NetworkManager.shared.fetchBitcoinRate()
+                self.mockBitcoinValue = rate
+                UserDefaults.standard.set(Date(), forKey: "lastBTCUpdate")
+                UserDefaults.standard.set(rate, forKey: "cachedBitcoinRate")
+                print("Written Date and rate in UserDefaults")
+
+            } catch {
+                print("Error fetching Bitcoin rate: \(error)")
+            }
+        }
+    }
+    
+    @objc private func updateBitcoinRate() {
+        let lastUpdate = UserDefaults.standard.object(forKey: "lastBTCUpdate") as? Date ?? Date.distantPast
+        let oneHourAgo = Date().addingTimeInterval(-3600)
+        
+        if lastUpdate < oneHourAgo {
+            fetchBitcoinRate()
+        } else {
+            print("Using cached Bitcoin rate")
+            self.mockBitcoinValue = UserDefaults.standard.string(forKey: "cachedBitcoinRate") ?? "nil"
+        }
+    }
+    
     @objc
-    private func addBalanceButtonPressed(sender: UIButton!){
-       print("add Balance is pressed")
+    private func addBalanceButtonPressed(sender: UIButton!) {
+        print("add Deposit is pressed")
     }
     
     @objc
     private func addTransactionButtonPressed(sender: UIButton!){
-       print("add Transaction is pressed")
+        let transactionVC = TransactionViewController()
+        self.navigationController?.pushViewController(transactionVC, animated: true)
     }
 }
 

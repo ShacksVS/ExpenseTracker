@@ -62,10 +62,10 @@ class TransactionViewController: UIViewController {
         config.imagePlacement = .leading
         config.preferredSymbolConfigurationForImage = UIImage.SymbolConfiguration(pointSize: 12, weight: .bold)
         
-        config.title = "Add"
+        config.title = "Create"
         
         button.configuration = config
-        button.addTarget(self, action: #selector(addTransactionButtonPressed), for: .touchUpInside)
+        button.addTarget(self, action: #selector(createTransactionButtonPressed), for: .touchUpInside)
         
         return button
     }()
@@ -112,8 +112,9 @@ class TransactionViewController: UIViewController {
     
     private func setupCategoryPicker() {
         let toolbar = UIToolbar()
+        toolbar.translatesAutoresizingMaskIntoConstraints = false
         toolbar.sizeToFit()
-
+        
         let doneButton = UIBarButtonItem(barButtonSystemItem: .done, target: self, action: #selector(donePicker))
         toolbar.setItems([doneButton], animated: true)
         
@@ -127,7 +128,7 @@ class TransactionViewController: UIViewController {
     }
     
     @objc
-    private func addTransactionButtonPressed() {
+    private func createTransactionButtonPressed() {
         guard
             let amount = amountTextField.text,
             let category = categoryTextField.text,
@@ -136,6 +137,7 @@ class TransactionViewController: UIViewController {
         else { return }
         
         print(amount, category)
+        navigationController?.popViewController(animated: true)
     }
 }
 

@@ -188,7 +188,30 @@ class BalanceController: UIViewController {
     
     @objc
     private func addBalanceButtonPressed(sender: UIButton!) {
-        print("add Deposit is pressed")
+        let alert = UIAlertController(
+            title: "Deposit",
+            message: "Enter the amount to deposit",
+            preferredStyle: .alert
+        )
+        alert.addTextField { textField in
+            textField.placeholder = "Amount"
+            textField.keyboardType = .decimalPad
+        }
+        let addAction = UIAlertAction(
+            title: "Recieve",
+            style: .default
+        ) { [weak alert] _ in
+            if let textField = alert?.textFields?.first, let amount = textField.text, !amount.isEmpty {
+                print("Amount to deposit: \(amount)")
+                // Add Core Data new transaction and update balance
+            }
+        }
+        let cancelAction = UIAlertAction(title: "Cancel", style: .cancel, handler: nil)
+        
+        alert.addAction(addAction)
+        alert.addAction(cancelAction)
+        
+        present(alert, animated: true, completion: nil)
     }
     
     @objc

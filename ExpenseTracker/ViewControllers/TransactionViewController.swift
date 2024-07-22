@@ -61,11 +61,11 @@ class TransactionViewController: UIViewController {
         config.imagePadding = 5
         config.imagePlacement = .leading
         config.preferredSymbolConfigurationForImage = UIImage.SymbolConfiguration(pointSize: 12, weight: .bold)
-
-        config.title = "Create"
+        
+        config.title = "Add"
         
         button.configuration = config
-        button.addTarget(self, action: #selector(createTransactionButtonPressed), for: .touchUpInside)
+        button.addTarget(self, action: #selector(addTransactionButtonPressed), for: .touchUpInside)
         
         return button
     }()
@@ -111,8 +111,14 @@ class TransactionViewController: UIViewController {
     }
     
     private func setupCategoryPicker() {
+        let toolbar = UIToolbar()
+        toolbar.sizeToFit()
+
         let doneButton = UIBarButtonItem(barButtonSystemItem: .done, target: self, action: #selector(donePicker))
+        toolbar.setItems([doneButton], animated: true)
+        
         categoryTextField.inputView = pickerView
+        categoryTextField.inputAccessoryView = toolbar
     }
     
     @objc
@@ -121,7 +127,7 @@ class TransactionViewController: UIViewController {
     }
     
     @objc
-    private func createTransactionButtonPressed() {
+    private func addTransactionButtonPressed() {
         guard
             let amount = amountTextField.text,
             let category = categoryTextField.text,
@@ -135,7 +141,6 @@ class TransactionViewController: UIViewController {
 
 // MARK: - UIPickerViewDataSource
 extension TransactionViewController: UIPickerViewDataSource {
-    
     func numberOfComponents(in pickerView: UIPickerView) -> Int {
         return 1
     }
@@ -147,7 +152,6 @@ extension TransactionViewController: UIPickerViewDataSource {
 
 // MARK: - UIPickerViewDelegate
 extension TransactionViewController: UIPickerViewDelegate {
-    
     func pickerView(_ pickerView: UIPickerView, titleForRow row: Int, forComponent component: Int) -> String? {
         return Category.allCases[row].rawValue
     }

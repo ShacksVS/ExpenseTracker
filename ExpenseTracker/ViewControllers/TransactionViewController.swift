@@ -149,9 +149,10 @@ class TransactionViewController: UIViewController {
                 let updated = updated,
                 updated
             else {
-                print("Dont have enough")
+                print("Dont have enough in balance")
+                showInsufficientBalanceAlert()
                 return
-            } // show alert?
+            }
             
             let transaction = try createTransaction(
                 amount: amount,
@@ -180,6 +181,16 @@ class TransactionViewController: UIViewController {
             print("Cannot save")
             throw CoreDataErrors.failedToSave
         }
+    }
+    
+    private func showInsufficientBalanceAlert() {
+        let alertController = UIAlertController(
+            title: "Insufficient Balance",
+            message: "You do not have enough BTC to make this transaction.",
+            preferredStyle: .alert
+        )
+        alertController.addAction(UIAlertAction(title: "OK", style: .default))
+        present(alertController, animated: true)
     }
 }
 

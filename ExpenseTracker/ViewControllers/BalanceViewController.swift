@@ -12,7 +12,6 @@ class BalanceController: UIViewController {
     
     let context = (UIApplication.shared.delegate as! AppDelegate).persistentContainer.viewContext
     var transactions: [Transaction] = []
-    let mockBalance = "0.2"
     var balance: Balance?
     var BTCrate: String = "0.0" {
         didSet {
@@ -258,7 +257,7 @@ class BalanceController: UIViewController {
     
     private func decreaseBalance(amount: Float) -> Bool {
         guard 
-            var amountBtc = balance?.amountBTC,
+            let amountBtc = balance?.amountBTC,
             amount < amountBtc
         else { return false }
         

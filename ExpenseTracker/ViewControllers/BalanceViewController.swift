@@ -240,7 +240,7 @@ class BalanceController: UIViewController {
     private func decreaseBalance(amount: Float) -> Bool {
         guard 
             let amountBtc = balance?.amountBTC,
-            amount < amountBtc
+            amount <= amountBtc
         else { return false }
         
         balance?.amountBTC -= amount

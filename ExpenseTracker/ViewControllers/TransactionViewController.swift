@@ -12,7 +12,8 @@ import CoreData
 class TransactionViewController: UIViewController {
     
     var context: NSManagedObjectContext!
-    
+    weak var delegate: TransactionViewControllerDelegate?
+
     enum Category: String, CaseIterable {
         case groceries = "Groceries"
         case taxi = "Taxi"
@@ -143,25 +144,27 @@ class TransactionViewController: UIViewController {
         print(amount, category)
         
         do {
-            try createTransaction(
+            let transaction = try createTransaction(
                 amount: amount,
                 transactionDate: Date(),
                 category: category
             )
+            delegate?.didAddTransaction(transaction)
         } catch {
             print("Failed to create: \(error)")
         }
         navigationController?.popViewController(animated: true)
     }
     
-    private func createTransaction(amount: Float, transactionDate: Date, category: String) throws {
+    private func createTransaction(amount: Float, transactionDate: Date, category: String) throws -> Transaction {
         let newTransaction = Transaction(context: context)
         newTransaction.amount = amount
-        newTransaction.transactionDate = Date()
+        newTransaction.transactionDate = transactionDate
         newTransaction.category = category
-        
+
         do {
             try context.save()
+            return newTransaction
         } catch {
             print("Cannot save")
             throw CoreDataErrors.failedToSave

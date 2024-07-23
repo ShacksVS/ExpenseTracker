@@ -19,6 +19,11 @@ class BalanceController: UIViewController {
             }
         }
     }
+    var isFetchingMoreTransactions = false
+    var currentOffset = 0
+    let fetchLimit = 20
+    var allFound = false
+    
     lazy private var tableView: UITableView = {
         let tableView = UITableView()
         tableView.translatesAutoresizingMaskIntoConstraints = false
@@ -108,6 +113,11 @@ class BalanceController: UIViewController {
         super.viewDidLoad()
         setupView()
         fetchBitcoinRate()
+        do {
+            try loadTransactions(offset: currentOffset)
+        } catch {
+            print("Cannot load: \(error)")
+        }
         
         // Register for an observer
         NotificationCenter.default.addObserver(
@@ -222,7 +232,7 @@ class BalanceController: UIViewController {
                     print("Error fetching Bitcoin rate: \(error)")
                 }
                 self.updateTable()
-                // Add Core Data new transaction and update balance
+                // Add update balance
             }
         }
         let cancelAction = UIAlertAction(title: "Cancel", style: .cancel, handler: nil)
@@ -237,16 +247,26 @@ class BalanceController: UIViewController {
     private func addTransactionButtonPressed(sender: UIButton!){
         let transactionVC = TransactionViewController()
         transactionVC.context = self.context
+        transactionVC.delegate = self
         self.navigationController?.pushViewController(transactionVC, animated: true)
     }
     
     // MARK: - Core Data
-    private func getAllTransactions() throws {
+    private func loadTransactions(offset: Int) throws {
         do {
-            self.transactions = try context.fetch(Transaction.fetchRequest())
+            let request = Transaction.fetchRequest(limit: fetchLimit, offset: offset)
+            let newTransactions = try context.fetch(request)
+            if !newTransactions.isEmpty {
+                self.transactions.append(contentsOf: newTransactions)
+                currentOffset += fetchLimit
+            } else {
+                allFound = true
+            }
+            self.isFetchingMoreTransactions = false
+            updateTable()
         } catch {
-            print("Cant get all transaction")
-            throw CoreDataErrors.failedToFetchAllTransactions
+            print("Error fetching transactions: \(error)")
+            throw CoreDataErrors.failedToFetchTransactions
         }
     }
     
@@ -258,6 +278,8 @@ class BalanceController: UIViewController {
         
         do {
             try context.save()
+            self.transactions.insert(newTransaction, at: 0)
+            updateTable()
         } catch {
             print("Cannot save")
             throw CoreDataErrors.failedToSave
@@ -265,11 +287,6 @@ class BalanceController: UIViewController {
     }
     
     private func updateTable() {
-        do {
-            try self.getAllTransactions()
-        } catch {
-            print("Error: \(error)")
-        }
         self.tableView.reloadData()
     }
 }
@@ -293,5 +310,34 @@ extension BalanceController: UITableViewDelegate {
     
     func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
         return 60
+    }
+}
+
+// MARK: - UIScrollViewDelegate
+extension BalanceController: UIScrollViewDelegate {
+    
+    func scrollViewDidScroll(_ scrollView: UIScrollView) {
+        let offsetY = scrollView.contentOffset.y
+        let contentHeight = scrollView.contentSize.height
+        let height = scrollView.frame.size.height
+        
+        if offsetY > contentHeight - height {
+            if !isFetchingMoreTransactions && !allFound {
+                isFetchingMoreTransactions = true
+                do {
+                    try loadTransactions(offset: currentOffset)
+                } catch {
+                    print("Cannot load: \(error)")
+                }
+            }
+        }
+    }
+}
+
+// MARK: - TransactionViewControllerDelegate
+extension BalanceController: TransactionViewControllerDelegate {
+    func didAddTransaction(_ transaction: Transaction) {
+        self.transactions.insert(transaction, at: 0)
+        updateTable()
     }
 }

@@ -12,10 +12,12 @@ import CoreData
 
 extension Transaction {
 
-    @nonobjc public class func fetchRequest() -> NSFetchRequest<Transaction> {
+    @nonobjc public class func fetchRequest(limit: Int = 20, offset: Int = 0) -> NSFetchRequest<Transaction> {
         let request = NSFetchRequest<Transaction>(entityName: "Transaction")
         let sortDescriptor = NSSortDescriptor(key: "transactionDate", ascending: false)
         request.sortDescriptors = [sortDescriptor]
+        request.fetchLimit = limit
+        request.fetchOffset = offset
         return request
     }
 

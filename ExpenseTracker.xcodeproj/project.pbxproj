@@ -25,6 +25,7 @@
 		905983BB2C4F937200CC145E /* Balance+CoreDataProperties.swift in Sources */ = {isa = PBXBuildFile; fileRef = 905983B72C4F937200CC145E /* Balance+CoreDataProperties.swift */; };
 		905983BC2C4F937200CC145E /* BtcRate+CoreDataClass.swift in Sources */ = {isa = PBXBuildFile; fileRef = 905983B82C4F937200CC145E /* BtcRate+CoreDataClass.swift */; };
 		905983BD2C4F937200CC145E /* BtcRate+CoreDataProperties.swift in Sources */ = {isa = PBXBuildFile; fileRef = 905983B92C4F937200CC145E /* BtcRate+CoreDataProperties.swift */; };
+		905983C32C4F9F1200CC145E /* TransactionViewControllerDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 905983C22C4F9F1200CC145E /* TransactionViewControllerDelegate.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -48,6 +49,7 @@
 		905983B72C4F937200CC145E /* Balance+CoreDataProperties.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Balance+CoreDataProperties.swift"; sourceTree = "<group>"; };
 		905983B82C4F937200CC145E /* BtcRate+CoreDataClass.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "BtcRate+CoreDataClass.swift"; sourceTree = "<group>"; };
 		905983B92C4F937200CC145E /* BtcRate+CoreDataProperties.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "BtcRate+CoreDataProperties.swift"; sourceTree = "<group>"; };
+		905983C22C4F9F1200CC145E /* TransactionViewControllerDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TransactionViewControllerDelegate.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -80,6 +82,7 @@
 		9059837B2C4E7A7E00CC145E /* ExpenseTracker */ = {
 			isa = PBXGroup;
 			children = (
+				905983C12C4F9EFF00CC145E /* Protocols */,
 				905983A82C4F82F800CC145E /* CoreData */,
 				9059839D2C4EA31400CC145E /* Errors */,
 				9059839A2C4E9F5D00CC145E /* Models */,
@@ -175,6 +178,14 @@
 			path = BtcRate;
 			sourceTree = "<group>";
 		};
+		905983C12C4F9EFF00CC145E /* Protocols */ = {
+			isa = PBXGroup;
+			children = (
+				905983C22C4F9F1200CC145E /* TransactionViewControllerDelegate.swift */,
+			);
+			path = Protocols;
+			sourceTree = "<group>";
+		};
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
@@ -260,6 +271,7 @@
 				9059837F2C4E7A7E00CC145E /* SceneDelegate.swift in Sources */,
 				9059839F2C4EA32100CC145E /* NetworkErrors.swift in Sources */,
 				905983962C4E7E4400CC145E /* TransactionCell.swift in Sources */,
+				905983C32C4F9F1200CC145E /* TransactionViewControllerDelegate.swift in Sources */,
 				905983872C4E7A7E00CC145E /* ExpenseTracker.xcdatamodeld in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

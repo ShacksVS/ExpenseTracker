@@ -8,6 +8,6 @@
 import Foundation
 
 enum CoreDataErrors: Error {
-    case failedToFetchAllTransactions
+    case failedToFetchTransactions
     case failedToSave
 }

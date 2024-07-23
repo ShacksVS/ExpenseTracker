@@ -10,6 +10,7 @@ import CoreData
 
 class BalanceController: UIViewController {
     
+    // MARK: - Properties
     let context = (UIApplication.shared.delegate as! AppDelegate).persistentContainer.viewContext
     var transactions: [Transaction] = []
     var balance: Balance?
@@ -20,11 +21,12 @@ class BalanceController: UIViewController {
             }
         }
     }
-    var isFetchingMoreTransactions = false
-    var currentOffset = 0
     let fetchLimit = 20
+    var currentOffset = 0
+    var isFetchingMoreTransactions = false
     var allFound = false
     
+    // MARK: - Views
     lazy private var tableView: UITableView = {
         let tableView = UITableView()
         tableView.translatesAutoresizingMaskIntoConstraints = false
@@ -109,11 +111,12 @@ class BalanceController: UIViewController {
 //        stackView.spacing = 20
         return stackView
     }()
-
+    
+    // MARK: - Init
     override func viewDidLoad() {
         super.viewDidLoad()
         setupView()
-        fetchBitcoinRate()
+        updateBitcoinRate()
         fetchBalance()
         do {
             try loadTransactions(offset: currentOffset)
@@ -143,6 +146,11 @@ class BalanceController: UIViewController {
         )
     }
     
+    private func updateTable() {
+        self.tableView.reloadData()
+    }
+    
+    // MARK: - Setup View
     private func setupView() {
         view.backgroundColor = UIColor.systemBackground
         
@@ -176,33 +184,7 @@ class BalanceController: UIViewController {
         ])
     }
     
-    private func fetchBitcoinRate() {
-        Task {
-            do {
-                let rate = try await NetworkManager.shared.fetchBitcoinRate()
-                self.BTCrate = rate
-                UserDefaults.standard.set(Date(), forKey: "lastBTCUpdate")
-                UserDefaults.standard.set(rate, forKey: "cachedBitcoinRate")
-                print("Written Date and rate in UserDefaults")
-
-            } catch {
-                print("Error fetching Bitcoin rate: \(error)")
-            }
-        }
-    }
-    
-    @objc private func updateBitcoinRate() {
-        let lastUpdate = UserDefaults.standard.object(forKey: "lastBTCUpdate") as? Date ?? Date.distantPast
-        let oneHourAgo = Date().addingTimeInterval(-3600)
-        
-        if lastUpdate < oneHourAgo {
-            fetchBitcoinRate()
-        } else {
-            print("Using cached Bitcoin rate")
-            self.BTCrate = UserDefaults.standard.string(forKey: "cachedBitcoinRate") ?? "nil"
-        }
-    }
-    
+    // MARK: - Update balance
     @objc
     private func addBalanceButtonPressed(sender: UIButton!) {
         let alert = UIAlertController(
@@ -272,20 +254,17 @@ class BalanceController: UIViewController {
         }
     }
     
+    private func updateBalanceLabel() {
+        balanceLabelView.text = "Balance: \(balance?.amountBTC ?? 0.0) BTC"
+    }
+    
+    // MARK: - Transaction button function
     @objc
     private func addTransactionButtonPressed(sender: UIButton!){
         let transactionVC = TransactionViewController()
         transactionVC.context = self.context
         transactionVC.delegate = self
         self.navigationController?.pushViewController(transactionVC, animated: true)
-    }
-    
-    private func updateTable() {
-        self.tableView.reloadData()
-    }
-    
-    private func updateBalanceLabel() {
-        balanceLabelView.text = "Balance: \(balance?.amountBTC ?? 0.0) BTC"
     }
     
     // MARK: - Core Data
@@ -338,7 +317,64 @@ class BalanceController: UIViewController {
             }
             updateBalanceLabel()
         } catch {
-            print("Error fetching balance: \(error)")
+            print("Error while fetching a balance: \(error)")
+        }
+    }
+    
+    @objc private func updateBitcoinRate() {
+        let fetchRequest: NSFetchRequest<BtcRate> = BtcRate.fetchRequest()
+        
+        do {
+            let results = try context.fetch(fetchRequest)
+            if let btcRate = results.first {
+                let lastUpdate = btcRate.lastUpdated ?? Date.distantPast
+                let oneHourAgo = Date().addingTimeInterval(-3600)
+                
+                if lastUpdate < oneHourAgo {
+                    fetchBitcoinRate()
+                } else {
+                    print("Using cached Bitcoin rate")
+                    self.BTCrate = String(btcRate.rate)
+                }
+            } else {
+                fetchBitcoinRate()
+            }
+        } catch {
+            print("Error fetching BTC rate: \(error)")
+        }
+    }
+    
+    private func saveBTCRate(rate: Float) {
+        let fetchRequest: NSFetchRequest<BtcRate> = BtcRate.fetchRequest()
+        
+        do {
+            let results = try context.fetch(fetchRequest)
+            if let btcRate = results.first {
+                btcRate.rate = rate
+                btcRate.lastUpdated = Date()
+            } else {
+                let newRate = BtcRate(context: context)
+                newRate.rate = rate
+                newRate.lastUpdated = Date()
+            }
+            try context.save()
+            print("BTC rate and update Date saved in Core Data")
+        } catch {
+            print("Error saving BTC rate: \(error)")
+        }
+    }
+    
+    // MARK: - Fetch BTC rate from network
+    private func fetchBitcoinRate() {
+        print("Updating BTC rate")
+        Task {
+            do {
+                let rate = try await NetworkManager.shared.fetchBitcoinRate()
+                self.BTCrate = rate
+                saveBTCRate(rate: Float(rate) ?? 0.0)
+            } catch {
+                print("Error fetching Bitcoin rate: \(error)")
+            }
         }
     }
 }

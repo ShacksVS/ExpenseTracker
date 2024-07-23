@@ -11,9 +11,11 @@ import CoreData
 
 class TransactionViewController: UIViewController {
     
+    // MARK: - Properties
     var context: NSManagedObjectContext!
     weak var delegate: TransactionViewControllerDelegate?
 
+    // MARK: - Category options
     enum Category: String, CaseIterable {
         case groceries = "Groceries"
         case taxi = "Taxi"
@@ -22,6 +24,7 @@ class TransactionViewController: UIViewController {
         case other = "Other"
     }
     
+    // MARK: - Views
     private lazy var textLabel: UILabel = {
         let label = UILabel()
         label.translatesAutoresizingMaskIntoConstraints = false
@@ -88,12 +91,14 @@ class TransactionViewController: UIViewController {
         return stackView
     }()
     
+    // MARK: - Init
     override func viewDidLoad() {
         super.viewDidLoad()
         setupView()
         setupCategoryPicker()
     }
     
+    // MARK: - Setup View
     private func setupView() {
         view.backgroundColor = UIColor.systemBackground
         view.addSubview(textLabel)
@@ -114,6 +119,7 @@ class TransactionViewController: UIViewController {
         ])
     }
     
+    // MARK: - Setup Picker
     private func setupCategoryPicker() {
         let toolbar = UIToolbar()
         toolbar.translatesAutoresizingMaskIntoConstraints = false
@@ -131,6 +137,7 @@ class TransactionViewController: UIViewController {
         categoryTextField.resignFirstResponder()
     }
     
+    // MARK: - Transaction button pressed fucntion
     @objc
     private func createTransactionButtonPressed() {
         guard
@@ -168,6 +175,7 @@ class TransactionViewController: UIViewController {
         navigationController?.popViewController(animated: true)
     }
     
+    // MARK: - Core Data
     private func createTransaction(amount: Float, transactionDate: Date, category: String) throws -> Transaction {
         let newTransaction = Transaction(context: context)
         newTransaction.amount = amount
@@ -183,6 +191,7 @@ class TransactionViewController: UIViewController {
         }
     }
     
+    // MARK: - Insufficient Balance Alert
     private func showInsufficientBalanceAlert() {
         let alertController = UIAlertController(
             title: "Insufficient Balance",

@@ -65,6 +65,7 @@ class TransactionCell: UITableViewCell {
         }
     }
     
+    // MARK: - Setup UI
     private func setupUI() {
         contentView.addSubview(categoryLabel)
         contentView.addSubview(amountLabel)

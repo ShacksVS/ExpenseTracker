@@ -204,7 +204,8 @@ class BalanceController: UIViewController {
                 print("Amount to deposit: \(amount)")
                 guard 
                     let self = self,
-                    let amount = Float(amount)
+                    let amount = Float(amount),
+                    amount > 0
                 else { return }
                 
                 do {

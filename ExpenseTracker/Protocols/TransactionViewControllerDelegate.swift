@@ -9,4 +9,5 @@ import Foundation
 
 protocol TransactionViewControllerDelegate: AnyObject {
     func didAddTransaction(_ transaction: Transaction)
+    func didUpdateBalance(_ amount: Float) -> Bool
 }

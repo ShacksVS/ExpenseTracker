@@ -144,12 +144,23 @@ class TransactionViewController: UIViewController {
         print(amount, category)
         
         do {
+            let updated = delegate?.didUpdateBalance(amount)
+            guard 
+                let updated = updated,
+                updated
+            else {
+                print("Dont have enough")
+                return
+            } // show alert?
+            
             let transaction = try createTransaction(
                 amount: amount,
                 transactionDate: Date(),
                 category: category
             )
+            
             delegate?.didAddTransaction(transaction)
+
         } catch {
             print("Failed to create: \(error)")
         }

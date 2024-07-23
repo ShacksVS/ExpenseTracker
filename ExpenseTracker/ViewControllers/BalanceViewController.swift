@@ -6,12 +6,14 @@
 //
 
 import UIKit
+import CoreData
 
 class BalanceController: UIViewController {
     
     let context = (UIApplication.shared.delegate as! AppDelegate).persistentContainer.viewContext
     var transactions: [Transaction] = []
     let mockBalance = "0.2"
+    var balance: Balance?
     var BTCrate: String = "0.0" {
         didSet {
             DispatchQueue.main.async {
@@ -49,10 +51,10 @@ class BalanceController: UIViewController {
         return label
     }()
     
-    lazy private var balanceLableView: UILabel = {
+    lazy private var balanceLabelView: UILabel = {
         let label = UILabel()
         label.translatesAutoresizingMaskIntoConstraints = false
-        label.text = "Balance: \(mockBalance) BTC"
+        label.text = "Balance: \(balance?.amountBTC ?? 0.0) BTC"
         label.font = .systemFont(ofSize: 18)
         return label
     }()
@@ -99,7 +101,7 @@ class BalanceController: UIViewController {
     lazy private var titleStackView: UIStackView = {
         let stackView = UIStackView(
             arrangedSubviews: [
-                balanceLableView,
+                balanceLabelView,
                 addBalanceButtonView
             ]
         )
@@ -113,6 +115,7 @@ class BalanceController: UIViewController {
         super.viewDidLoad()
         setupView()
         fetchBitcoinRate()
+        fetchBalance()
         do {
             try loadTransactions(offset: currentOffset)
         } catch {
@@ -228,11 +231,11 @@ class BalanceController: UIViewController {
                         amount: amount,
                         transactionDate: Date()
                     )
+                    self.increaseBalance(amount: amount)
                 } catch {
                     print("Error fetching Bitcoin rate: \(error)")
                 }
                 self.updateTable()
-                // Add update balance
             }
         }
         let cancelAction = UIAlertAction(title: "Cancel", style: .cancel, handler: nil)
@@ -243,12 +246,47 @@ class BalanceController: UIViewController {
         present(alert, animated: true, completion: nil)
     }
     
+    private func increaseBalance(amount: Float) {
+        balance?.amountBTC += amount
+        do {
+            try context.save()
+            updateBalanceLabel()
+        } catch {
+            print("Cannot update balance")
+        }
+    }
+    
+    private func decreaseBalance(amount: Float) -> Bool {
+        guard 
+            var amountBtc = balance?.amountBTC,
+            amount < amountBtc
+        else { return false }
+        
+        balance?.amountBTC -= amount
+        do {
+            try context.save()
+            updateBalanceLabel()
+            return true
+        } catch {
+            print("Cannot update balance")
+            return false
+        }
+    }
+    
     @objc
     private func addTransactionButtonPressed(sender: UIButton!){
         let transactionVC = TransactionViewController()
         transactionVC.context = self.context
         transactionVC.delegate = self
         self.navigationController?.pushViewController(transactionVC, animated: true)
+    }
+    
+    private func updateTable() {
+        self.tableView.reloadData()
+    }
+    
+    private func updateBalanceLabel() {
+        balanceLabelView.text = "Balance: \(balance?.amountBTC ?? 0.0) BTC"
     }
     
     // MARK: - Core Data
@@ -286,8 +324,23 @@ class BalanceController: UIViewController {
         }
     }
     
-    private func updateTable() {
-        self.tableView.reloadData()
+    private func fetchBalance() {
+        let request: NSFetchRequest<Balance> = Balance.fetchRequest()
+        
+        do {
+            let results = try context.fetch(request)
+            if let fetchedBalance = results.first {
+                balance = fetchedBalance
+            } else {
+                // Create a new balance if not existing
+                balance = Balance(context: context)
+                balance?.amountBTC = 0.0
+                try context.save()
+            }
+            updateBalanceLabel()
+        } catch {
+            print("Error fetching balance: \(error)")
+        }
     }
 }
 
@@ -336,6 +389,11 @@ extension BalanceController: UIScrollViewDelegate {
 
 // MARK: - TransactionViewControllerDelegate
 extension BalanceController: TransactionViewControllerDelegate {
+    func didUpdateBalance(_ amount: Float) -> Bool {
+        let updated = decreaseBalance(amount: amount)
+        return updated
+    }
+    
     func didAddTransaction(_ transaction: Transaction) {
         self.transactions.insert(transaction, at: 0)
         updateTable()

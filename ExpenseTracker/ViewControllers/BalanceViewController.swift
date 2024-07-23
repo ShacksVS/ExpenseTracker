@@ -330,7 +330,7 @@ class BalanceController: UIViewController {
                 let lastUpdate = btcRate.lastUpdated ?? Date.distantPast
                 let oneHourAgo = Date().addingTimeInterval(-3600)
                 
-                if lastUpdate < oneHourAgo || btcRate.rate == 0 {
+                if lastUpdate < oneHourAgo {
                     fetchBitcoinRate()
                 } else {
                     print("Using cached Bitcoin rate: \(btcRate.rate)")
@@ -346,7 +346,6 @@ class BalanceController: UIViewController {
     
     private func saveBTCRate(rate: Float) {
         let fetchRequest: NSFetchRequest<BtcRate> = BtcRate.fetchRequest()
-        
         do {
             let results = try context.fetch(fetchRequest)
             if let btcRate = results.first {
@@ -370,8 +369,8 @@ class BalanceController: UIViewController {
         Task {
             do {
                 let rate = try await NetworkManager.shared.fetchBitcoinRate()
-                self.BTCrate = rate
-                saveBTCRate(rate: Float(rate) ?? 0.0)
+                self.BTCrate = String(rate)
+                saveBTCRate(rate: rate)
             } catch {
                 print("Error fetching Bitcoin rate: \(error)")
             }

@@ -20,5 +20,5 @@ struct BPI: Codable {
 }
 
 struct Currency: Codable {
-    let rate: String
+    let rate_float: Float
 }

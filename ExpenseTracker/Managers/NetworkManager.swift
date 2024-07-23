@@ -12,7 +12,7 @@ final class NetworkManager {
     
     private init() {}
     
-    func fetchBitcoinRate() async throws -> String {
+    func fetchBitcoinRate() async throws -> Float {
         let endpoint = "https://api.coindesk.com/v1/bpi/currentprice.json"
         guard let url = URL(string: endpoint) else {
             throw NetworkErrors.invalidUrl
@@ -31,7 +31,7 @@ final class NetworkManager {
         let decoder = JSONDecoder()
         do {
             let bitcoinPriceIndex = try decoder.decode(BitcoinRate.self, from: responseData)
-            let bitcoinRateUSD = bitcoinPriceIndex.bpi.usd.rate
+            let bitcoinRateUSD = bitcoinPriceIndex.bpi.usd.rate_float
             print("Bitcoin rate in USD: \(bitcoinRateUSD)")
             return bitcoinRateUSD
         } catch {

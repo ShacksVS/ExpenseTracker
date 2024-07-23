@@ -18,6 +18,13 @@
 		9059839C2C4E9F8F00CC145E /* BitcoinRate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9059839B2C4E9F8F00CC145E /* BitcoinRate.swift */; };
 		9059839F2C4EA32100CC145E /* NetworkErrors.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9059839E2C4EA32000CC145E /* NetworkErrors.swift */; };
 		905983A12C4EE82C00CC145E /* TransactionViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 905983A02C4EE82C00CC145E /* TransactionViewController.swift */; };
+		905983A62C4F82F500CC145E /* Transaction+CoreDataClass.swift in Sources */ = {isa = PBXBuildFile; fileRef = 905983A42C4F82F500CC145E /* Transaction+CoreDataClass.swift */; };
+		905983A72C4F82F500CC145E /* Transaction+CoreDataProperties.swift in Sources */ = {isa = PBXBuildFile; fileRef = 905983A52C4F82F500CC145E /* Transaction+CoreDataProperties.swift */; };
+		905983AD2C4F8AE100CC145E /* CoreDataErrors.swift in Sources */ = {isa = PBXBuildFile; fileRef = 905983AC2C4F8AE100CC145E /* CoreDataErrors.swift */; };
+		905983BA2C4F937200CC145E /* Balance+CoreDataClass.swift in Sources */ = {isa = PBXBuildFile; fileRef = 905983B62C4F937200CC145E /* Balance+CoreDataClass.swift */; };
+		905983BB2C4F937200CC145E /* Balance+CoreDataProperties.swift in Sources */ = {isa = PBXBuildFile; fileRef = 905983B72C4F937200CC145E /* Balance+CoreDataProperties.swift */; };
+		905983BC2C4F937200CC145E /* BtcRate+CoreDataClass.swift in Sources */ = {isa = PBXBuildFile; fileRef = 905983B82C4F937200CC145E /* BtcRate+CoreDataClass.swift */; };
+		905983BD2C4F937200CC145E /* BtcRate+CoreDataProperties.swift in Sources */ = {isa = PBXBuildFile; fileRef = 905983B92C4F937200CC145E /* BtcRate+CoreDataProperties.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -34,6 +41,13 @@
 		9059839B2C4E9F8F00CC145E /* BitcoinRate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BitcoinRate.swift; sourceTree = "<group>"; };
 		9059839E2C4EA32000CC145E /* NetworkErrors.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NetworkErrors.swift; sourceTree = "<group>"; };
 		905983A02C4EE82C00CC145E /* TransactionViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TransactionViewController.swift; sourceTree = "<group>"; };
+		905983A42C4F82F500CC145E /* Transaction+CoreDataClass.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Transaction+CoreDataClass.swift"; sourceTree = "<group>"; };
+		905983A52C4F82F500CC145E /* Transaction+CoreDataProperties.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Transaction+CoreDataProperties.swift"; sourceTree = "<group>"; };
+		905983AC2C4F8AE100CC145E /* CoreDataErrors.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CoreDataErrors.swift; sourceTree = "<group>"; };
+		905983B62C4F937200CC145E /* Balance+CoreDataClass.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Balance+CoreDataClass.swift"; sourceTree = "<group>"; };
+		905983B72C4F937200CC145E /* Balance+CoreDataProperties.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Balance+CoreDataProperties.swift"; sourceTree = "<group>"; };
+		905983B82C4F937200CC145E /* BtcRate+CoreDataClass.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "BtcRate+CoreDataClass.swift"; sourceTree = "<group>"; };
+		905983B92C4F937200CC145E /* BtcRate+CoreDataProperties.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "BtcRate+CoreDataProperties.swift"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -66,6 +80,7 @@
 		9059837B2C4E7A7E00CC145E /* ExpenseTracker */ = {
 			isa = PBXGroup;
 			children = (
+				905983A82C4F82F800CC145E /* CoreData */,
 				9059839D2C4EA31400CC145E /* Errors */,
 				9059839A2C4E9F5D00CC145E /* Models */,
 				905983972C4E9E9B00CC145E /* Managers */,
@@ -118,8 +133,46 @@
 			isa = PBXGroup;
 			children = (
 				9059839E2C4EA32000CC145E /* NetworkErrors.swift */,
+				905983AC2C4F8AE100CC145E /* CoreDataErrors.swift */,
 			);
 			path = Errors;
+			sourceTree = "<group>";
+		};
+		905983A82C4F82F800CC145E /* CoreData */ = {
+			isa = PBXGroup;
+			children = (
+				905983C02C4F93E700CC145E /* BtcRate */,
+				905983BF2C4F938300CC145E /* Balance */,
+				905983BE2C4F937800CC145E /* Transaction */,
+			);
+			path = CoreData;
+			sourceTree = "<group>";
+		};
+		905983BE2C4F937800CC145E /* Transaction */ = {
+			isa = PBXGroup;
+			children = (
+				905983A42C4F82F500CC145E /* Transaction+CoreDataClass.swift */,
+				905983A52C4F82F500CC145E /* Transaction+CoreDataProperties.swift */,
+			);
+			path = Transaction;
+			sourceTree = "<group>";
+		};
+		905983BF2C4F938300CC145E /* Balance */ = {
+			isa = PBXGroup;
+			children = (
+				905983B62C4F937200CC145E /* Balance+CoreDataClass.swift */,
+				905983B72C4F937200CC145E /* Balance+CoreDataProperties.swift */,
+			);
+			path = Balance;
+			sourceTree = "<group>";
+		};
+		905983C02C4F93E700CC145E /* BtcRate */ = {
+			isa = PBXGroup;
+			children = (
+				905983B82C4F937200CC145E /* BtcRate+CoreDataClass.swift */,
+				905983B92C4F937200CC145E /* BtcRate+CoreDataProperties.swift */,
+			);
+			path = BtcRate;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -196,7 +249,14 @@
 				9059839C2C4E9F8F00CC145E /* BitcoinRate.swift in Sources */,
 				905983812C4E7A7E00CC145E /* BalanceViewController.swift in Sources */,
 				9059837D2C4E7A7E00CC145E /* AppDelegate.swift in Sources */,
+				905983A62C4F82F500CC145E /* Transaction+CoreDataClass.swift in Sources */,
+				905983A72C4F82F500CC145E /* Transaction+CoreDataProperties.swift in Sources */,
+				905983BA2C4F937200CC145E /* Balance+CoreDataClass.swift in Sources */,
+				905983BB2C4F937200CC145E /* Balance+CoreDataProperties.swift in Sources */,
+				905983BC2C4F937200CC145E /* BtcRate+CoreDataClass.swift in Sources */,
+				905983BD2C4F937200CC145E /* BtcRate+CoreDataProperties.swift in Sources */,
 				905983A12C4EE82C00CC145E /* TransactionViewController.swift in Sources */,
+				905983AD2C4F8AE100CC145E /* CoreDataErrors.swift in Sources */,
 				9059837F2C4E7A7E00CC145E /* SceneDelegate.swift in Sources */,
 				9059839F2C4EA32100CC145E /* NetworkErrors.swift in Sources */,
 				905983962C4E7E4400CC145E /* TransactionCell.swift in Sources */,

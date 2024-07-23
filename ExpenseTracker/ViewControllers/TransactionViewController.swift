@@ -7,8 +7,11 @@
 
 import Foundation
 import UIKit
+import CoreData
 
 class TransactionViewController: UIViewController {
+    
+    var context: NSManagedObjectContext!
     
     enum Category: String, CaseIterable {
         case groceries = "Groceries"
@@ -133,11 +136,36 @@ class TransactionViewController: UIViewController {
             let amount = amountTextField.text,
             let category = categoryTextField.text,
             amount != "",
+            let amount = Float(amount),
             category != ""
         else { return }
         
         print(amount, category)
+        
+        do {
+            try createTransaction(
+                amount: amount,
+                transactionDate: Date(),
+                category: category
+            )
+        } catch {
+            print("Failed to create: \(error)")
+        }
         navigationController?.popViewController(animated: true)
+    }
+    
+    private func createTransaction(amount: Float, transactionDate: Date, category: String) throws {
+        let newTransaction = Transaction(context: context)
+        newTransaction.amount = amount
+        newTransaction.transactionDate = Date()
+        newTransaction.category = category
+        
+        do {
+            try context.save()
+        } catch {
+            print("Cannot save")
+            throw CoreDataErrors.failedToSave
+        }
     }
 }
 

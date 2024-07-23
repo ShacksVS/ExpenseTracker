@@ -9,12 +9,13 @@ import UIKit
 
 class BalanceController: UIViewController {
     
-    let mocks = ["1", "2", "3"]
+    let context = (UIApplication.shared.delegate as! AppDelegate).persistentContainer.viewContext
+    var transactions: [Transaction] = []
     let mockBalance = "0.2"
-    var mockBitcoinValue: String = "0.0" {
+    var BTCrate: String = "0.0" {
         didSet {
             DispatchQueue.main.async {
-                self.bitcoinValueView.text = "BTC = \(self.mockBitcoinValue)$"
+                self.bitcoinValueView.text = "BTC = \(self.BTCrate)$"
             }
         }
     }
@@ -117,6 +118,10 @@ class BalanceController: UIViewController {
         )
     }
     
+    override func viewWillAppear(_ animated: Bool) {
+        updateTable()
+    }
+    
     // Remove observer
     deinit {
         NotificationCenter.default.removeObserver(
@@ -163,7 +168,7 @@ class BalanceController: UIViewController {
         Task {
             do {
                 let rate = try await NetworkManager.shared.fetchBitcoinRate()
-                self.mockBitcoinValue = rate
+                self.BTCrate = rate
                 UserDefaults.standard.set(Date(), forKey: "lastBTCUpdate")
                 UserDefaults.standard.set(rate, forKey: "cachedBitcoinRate")
                 print("Written Date and rate in UserDefaults")
@@ -182,7 +187,7 @@ class BalanceController: UIViewController {
             fetchBitcoinRate()
         } else {
             print("Using cached Bitcoin rate")
-            self.mockBitcoinValue = UserDefaults.standard.string(forKey: "cachedBitcoinRate") ?? "nil"
+            self.BTCrate = UserDefaults.standard.string(forKey: "cachedBitcoinRate") ?? "nil"
         }
     }
     
@@ -200,9 +205,23 @@ class BalanceController: UIViewController {
         let addAction = UIAlertAction(
             title: "Recieve",
             style: .default
-        ) { [weak alert] _ in
+        ) { [weak self, weak alert] _ in
             if let textField = alert?.textFields?.first, let amount = textField.text, !amount.isEmpty {
                 print("Amount to deposit: \(amount)")
+                guard 
+                    let self = self,
+                    let amount = Float(amount)
+                else { return }
+                
+                do {
+                    try self.createTransaction(
+                        amount: amount,
+                        transactionDate: Date()
+                    )
+                } catch {
+                    print("Error fetching Bitcoin rate: \(error)")
+                }
+                self.updateTable()
                 // Add Core Data new transaction and update balance
             }
         }
@@ -217,7 +236,41 @@ class BalanceController: UIViewController {
     @objc
     private func addTransactionButtonPressed(sender: UIButton!){
         let transactionVC = TransactionViewController()
+        transactionVC.context = self.context
         self.navigationController?.pushViewController(transactionVC, animated: true)
+    }
+    
+    // MARK: - Core Data
+    private func getAllTransactions() throws {
+        do {
+            self.transactions = try context.fetch(Transaction.fetchRequest())
+        } catch {
+            print("Cant get all transaction")
+            throw CoreDataErrors.failedToFetchAllTransactions
+        }
+    }
+    
+    private func createTransaction(amount: Float, transactionDate: Date) throws{
+        let newTransaction = Transaction(context: context)
+        newTransaction.amount = amount
+        newTransaction.transactionDate = Date()
+        newTransaction.category = "Received"
+        
+        do {
+            try context.save()
+        } catch {
+            print("Cannot save")
+            throw CoreDataErrors.failedToSave
+        }
+    }
+    
+    private func updateTable() {
+        do {
+            try self.getAllTransactions()
+        } catch {
+            print("Error: \(error)")
+        }
+        self.tableView.reloadData()
     }
 }
 
@@ -225,12 +278,12 @@ class BalanceController: UIViewController {
 extension BalanceController: UITableViewDataSource {
     
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        return mocks.count
+        return transactions.count
     }
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell = tableView.dequeueReusableCell(withIdentifier: "TransactionCell", for: indexPath) as! TransactionCell
-        cell.configure(to: mocks[indexPath.item])
+        cell.configure(with: transactions[indexPath.item])
         return cell
     }
 }

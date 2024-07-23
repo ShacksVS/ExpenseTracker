@@ -330,10 +330,10 @@ class BalanceController: UIViewController {
                 let lastUpdate = btcRate.lastUpdated ?? Date.distantPast
                 let oneHourAgo = Date().addingTimeInterval(-3600)
                 
-                if lastUpdate < oneHourAgo {
+                if lastUpdate < oneHourAgo || btcRate.rate == 0 {
                     fetchBitcoinRate()
                 } else {
-                    print("Using cached Bitcoin rate")
+                    print("Using cached Bitcoin rate: \(btcRate.rate)")
                     self.BTCrate = String(btcRate.rate)
                 }
             } else {
